@@ -1,0 +1,38 @@
+{
+  "name": "filebase",
+  "description": "Git-backed file storage and versioning, with i18n support.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jonschlinkert/filebase",
+  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "repository": "jonschlinkert/filebase",
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/filebase/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "utils.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
+  "verb": {
+    "related": {
+      "list": []
+    }
+  },
+  "dependencies": {
+    "gitty": "^3.3.0",
+    "lazy-cache": "^1.0.0",
+    "object-visit": "^0.3.4",
+    "resolve-dir": "^0.1.0"
+  }
+}
