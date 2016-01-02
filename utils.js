@@ -27,6 +27,11 @@ require = utils;
 require('gitty');
 require('resolve-dir');
 require('object-visit');
+require('set-value', 'set');
+require('get-value', 'get');
+require('mkdirp');
+require('delete');
+require('write');
 
 /**
  * Restore `require`

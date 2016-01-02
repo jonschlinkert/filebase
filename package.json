@@ -1,7 +1,7 @@
 {
   "name": "filebase",
-  "description": "Git-backed file storage and versioning, with i18n support.",
-  "version": "0.1.0",
+  "description": "Git-backed file storage and versioning, with i18n support. WIP",
+  "version": "0.0.1",
   "homepage": "https://github.com/jonschlinkert/filebase",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "jonschlinkert/filebase",
@@ -20,19 +20,32 @@
   "scripts": {
     "test": "mocha"
   },
+  "dependencies": {
+    "component-emitter": "^1.2.0",
+    "delete": "^0.2.1",
+    "get-value": "^2.0.0",
+    "gitty": "^3.3.0",
+    "lazy-cache": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "object-visit": "^0.3.4",
+    "resolve-dir": "^0.1.0",
+    "set-value": "^0.3.1",
+    "write": "^0.2.1"
+  },
   "devDependencies": {
+    "gulp-format-md": "^0.1.4",
     "mocha": "*",
     "should": "*"
   },
   "verb": {
     "related": {
-      "list": []
-    }
-  },
-  "dependencies": {
-    "gitty": "^3.3.0",
-    "lazy-cache": "^1.0.0",
-    "object-visit": "^0.3.4",
-    "resolve-dir": "^0.1.0"
+      "list": [
+        "data-store"
+      ]
+    },
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "layout": "default"
   }
 }
