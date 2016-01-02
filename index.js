@@ -7,49 +7,131 @@
 
 'use strict';
 
+var fs = require('fs');
 var path = require('path');
 var git = require('gitty');
+var Emitter = require('component-emitter');
 var utils = require('./utils');
+
+/**
+ * Create an instance of `Filebase` with the given `options`
+ *
+ * ```js
+ * var filebase = new Filebase();
+ * ```
+ *
+ * @param {Object} `options`
+ * @api public
+ */
 
 function Filebase(options) {
   this.options = options || {};
   this.cache = {};
   this.paths = {};
+  this.defaultConfig();
 }
+
+/**
+ * Inherit `Emitter`
+ */
+
+Emitter(Filebase.prototype);
+
+/**
+ * Default configuration for Filebase
+ */
+
+Filebase.prototype.defaultConfig = function() {
+  // placeholder for real messages...
+  this.message('writeFile', 'Wrote file');
+};
+
+/**
+ * Add file `key` with the given `value`
+ *
+ * @param {String} `key`
+ * @param {Object} `value`
+ * @api public
+ */
 
 Filebase.prototype.set = function(key, value) {
   this.files[key] = value;
   return this;
 };
 
+/**
+ * Get file `key`
+ *
+ * @param {String} `key`
+ * @return {Object}
+ * @api public
+ */
+
 Filebase.prototype.get = function(key) {
   return this.files[key];
 };
 
+/**
+ * Return true if file `key` exists.
+ *
+ * @param {String} `key`
+ * @return {Boolean}
+ * @api public
+ */
+
 Filebase.prototype.has = function(key) {
   return this.files.hasOwnProperty(key);
 };
+
+/**
+ * Delete file `key`
+ *
+ * @param {String} `key`
+ * @api public
+ */
 
 Filebase.prototype.del = function(key) {
   delete this.files[key];
   return this;
 };
 
-/**
- * Initialize a new git repository in the `dest` directory.
- * ```js
- * filebase.init(function(err) {
- *   console.log(err);
- * });
- * ```
- * @param {array} `flags`
- * @param {function} `callback`
- * @api public
- */
-
-Filebase.prototype.init = function() {
-  this.repo.init.apply(this.repo, arguments);
+Filebase.prototype.message = function(key, message) {
+  utils.set(this.messages, key, message);
   return this;
+};
+
+Filebase.prototype.add = function(cb) {
+  this.repo.add(['.'], cb);
+  return this;
+};
+
+Filebase.prototype.commit = function(message, cb) {
+  if (typeof message === 'function') {
+    cb = message;
+    message = 'writeFile';
+  }
+
+  var msg = utils.get(this.messages, message) || message;
+
+  this.add(function(err) {
+    if (err) return cb(err);
+    this.repo.commit(msg, cb);
+  }.bind(this));
+  return this;
+};
+
+Filebase.prototype.readFile = function(fp) {
+
+};
+
+Filebase.prototype.writeFile = function(filename, str, cb) {
+  var dest = path.join(this.dest, filename);
+
+  utils.writeFile(dest, str, function(err) {
+    if (err) return cb(err);
+
+    this.gitCommit('writeFile', cb);
+  }.bind(this));
 };
 
 /**
@@ -58,7 +140,6 @@ Filebase.prototype.init = function() {
  * ```js
  * filebase.initSync();
  * ```
- * @param {array} `flags`
  * @api public
  */
 
@@ -73,6 +154,7 @@ Filebase.prototype.initSync = function() {
  * ```js
  * filebase.save();
  * ```
+ * @api public
  */
 
 Filebase.prototype.save = function() {
@@ -95,6 +177,15 @@ Filebase.prototype.defaultKey = function(locale) {
 
 Filebase.prototype.toKey = function(locale) {
   return utils.toKey(locale || this.locale, this.cwd);
+};
+
+/**
+ * Ensure that a directory exists.
+ */
+
+Filebase.prototype.ensureDir = function(dir) {
+  if (!fs.existsSync(dir)) utils.mkdirp.sync(dir);
+  return dir;
 };
 
 /**
@@ -143,7 +234,8 @@ Object.defineProperty(Filebase.prototype, 'repo', {
 });
 
 /**
- * Setter for `templates` directory
+ * Setter for `templates` directory, used internally by Filebase for
+ * generating assets.
  */
 
 Object.defineProperty(Filebase.prototype, 'templates', {
@@ -151,7 +243,7 @@ Object.defineProperty(Filebase.prototype, 'templates', {
     throw new Error('"templates" is a private getter and cannot be defined.');
   },
   get: function() {
-    return path.join(__dirname, 'support/templates');
+    return this.ensureDir(path.join(__dirname, 'support/templates'));
   }
 });
 
@@ -168,7 +260,7 @@ Object.defineProperty(Filebase.prototype, 'dest', {
       return this.cache.dest;
     }
     var dest = utils.resolveDir(this.options.dest || '~/filebase');
-    return (this.cache.dest = dest);
+    return (this.cache.dest = this.ensureDir(dest));
   }
 });
 
